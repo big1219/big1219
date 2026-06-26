@@ -1,0 +1,54 @@
+name: 나라장터 엔진오일 입찰 모니터링
+
+on:
+  schedule:
+    # 매시 05분, 35분(UTC). 한국시간 기준 30분 간격으로 실행된다.
+    - cron: "5,35 * * * *"
+  workflow_dispatch: {}  # 수동 실행 버튼
+
+# state/seen.json 을 커밋해 중복 알림을 막으므로 쓰기 권한이 필요하다.
+permissions:
+  contents: write
+
+# 동시에 두 번 돌지 않도록(상태 파일 충돌 방지).
+concurrency:
+  group: naramarket-monitor
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 파이썬 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 의존성 설치
+        run: pip install -r requirements.txt
+
+      - name: 모니터링 실행
+        env:
+          G2B_SERVICE_KEY: ${{ secrets.G2B_SERVICE_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          G2B_API_BASE: ${{ vars.G2B_API_BASE }}
+          G2B_OPERATIONS: ${{ vars.G2B_OPERATIONS }}
+          SEARCH_KEYWORDS: ${{ vars.SEARCH_KEYWORDS }}
+          LOOKBACK_HOURS: ${{ vars.LOOKBACK_HOURS }}
+        run: python -m nara_monitor.main
+
+      - name: 상태 파일 커밋(변경 시)
+        run: |
+          if [[ -n "$(git status --porcelain state/seen.json)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add state/seen.json
+            git commit -m "chore: 알림 발송 공고 기록 업데이트 [skip ci]"
+            git push
+          else
+            echo "상태 변경 없음 — 커밋 생략"
+          fi
