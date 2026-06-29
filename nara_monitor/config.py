@@ -30,7 +30,7 @@ DEFAULT_OPERATIONS = ["getBidPblancListInfoThng"]
 
 # 나라장터 입찰공고정보서비스(공공데이터포털 데이터ID 15129394)의 기본 base URL.
 # 발급 화면의 "엔드포인트"가 다르면 G2B_API_BASE 로 덮어쓴다.
-DEFAULT_API_BASE = "https://apis.data.go.kr/1230000/as/BidPublicInfoService"
+DEFAULT_API_BASE = "https://apis.data.go.kr/1230000/ad/BidPublicInfoService"
 
 
 def _split(value: str) -> list[str]:
