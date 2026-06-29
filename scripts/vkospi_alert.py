@@ -11,56 +11,97 @@ UA = (
     "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"
 )
 
-SOURCES = [
-    "https://kr.investing.com/indices/kospi-volatility",
-    "https://www.investing.com/indices/kospi-volatility",
-]
 
-
-def _http_get(url):
-    req = urllib.request.Request(
-        url,
-        headers={
-            "User-Agent": UA,
-            "Accept-Language": "ko,en;q=0.8",
-            "Accept": "text/html,application/xhtml+xml",
-        },
-    )
-    with urllib.request.urlopen(req, timeout=25) as resp:
+def _get(url, headers=None, timeout=25):
+    h = {"User-Agent": UA, "Accept": "*/*", "Accept-Language": "ko,en;q=0.8"}
+    if headers:
+        h.update(headers)
+    req = urllib.request.Request(url, headers=h)
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read().decode("utf-8", errors="replace")
 
 
-def _search(patterns, html):
-    for p in patterns:
-        m = re.search(p, html)
-        if m:
-            return m.group(1).strip()
-    return None
+def from_cnbc():
+    url = (
+        "https://quote.cnbc.com/quote-html-webservice/restQuote/symbolType/symbol"
+        "?symbols=.KSVKOSPI&requestMethod=itv&noform=1&partnerId=2&fund=1"
+        "&exthrs=1&output=json&events=1"
+    )
+    data = json.loads(_get(url, headers={"Accept": "application/json"}))
+    q = data["FormattedQuoteResult"]["FormattedQuote"][0]
+    value = str(q["last"]).replace(",", "")
+    change = str(q.get("change", "")).replace(",", "") or None
+    pct = q.get("change_pct")
+    if pct and not str(pct).endswith("%"):
+        pct = f"{pct}%"
+    return value, change, pct, "CNBC"
 
 
-def fetch_vkospi():
+def from_naver():
     last_err = None
-    for url in SOURCES:
+    for code in (".VKOSPI", "VKOSPI", "KSVKOSPI"):
         try:
-            html = _http_get(url)
+            txt = _get(
+                f"https://m.stock.naver.com/api/index/{code}/basic",
+                headers={
+                    "Accept": "application/json",
+                    "Referer": "https://m.stock.naver.com/",
+                },
+            )
+            d = json.loads(txt)
+            value = str(d["closePrice"]).replace(",", "")
+            change = str(d.get("compareToPreviousClosePrice", "")).replace(",", "") or None
+            pct = d.get("fluctuationsRatio")
+            if pct and not str(pct).endswith("%"):
+                pct = f"{pct}%"
+            return value, change, pct, "Naver"
+        except Exception as e:
+            last_err = e
+    raise RuntimeError(f"naver all codes failed: {last_err}")
+
+
+def from_investing():
+    last_err = None
+    for url in (
+        "https://kr.investing.com/indices/kospi-volatility",
+        "https://www.investing.com/indices/kospi-volatility",
+    ):
+        try:
+            html = _get(url, headers={"Accept": "text/html,application/xhtml+xml"})
         except Exception as e:
             last_err = e
             continue
-        value = _search([r'data-test="instrument-price-last"[^>]*>([\d,\.]+)<'], html)
-        change = _search([r'data-test="instrument-price-change"[^>]*>([+\-]?[\d,\.]+)<'], html)
-        pct = _search(
-            [r'data-test="instrument-price-change-percent"[^>]*>\(?([+\-]?[\d,\.]+%)\)?<'],
-            html,
-        )
+
+        def s(pats):
+            for p in pats:
+                m = re.search(p, html)
+                if m:
+                    return m.group(1).strip()
+            return None
+
+        value = s([r'data-test="instrument-price-last"[^>]*>([\d,\.]+)<'])
         if value:
-            return (
-                value.replace(",", ""),
-                change.replace(",", "") if change else None,
-                pct if pct else None,
-                url,
-            )
+            change = s([r'data-test="instrument-price-change"[^>]*>([+\-]?[\d,\.]+)<'])
+            pct = s([r'data-test="instrument-price-change-percent"[^>]*>\(?([+\-]?[\d,\.]+%)\)?<'])
+            return value.replace(",", ""), (change or "").replace(",", "") or None, pct, "Investing.com"
         last_err = RuntimeError(f"price pattern not found: {url}")
-    raise RuntimeError(f"VKOSPI fetch failed: {last_err}")
+    raise RuntimeError(f"investing failed: {last_err}")
+
+
+SOURCES = [from_cnbc, from_naver, from_investing]
+
+
+def fetch_vkospi():
+    errors = []
+    for fn in SOURCES:
+        try:
+            value, change, pct, src = fn()
+            print(f"[ok] source={src} value={value} change={change} pct={pct}")
+            return value, change, pct, src
+        except Exception as e:
+            print(f"[fail] {fn.__name__}: {type(e).__name__}: {e}", file=sys.stderr)
+            errors.append(f"{fn.__name__}: {type(e).__name__}: {e}")
+    raise RuntimeError("모든 출처 실패 →\n" + "\n".join(errors))
 
 
 def interpret(value):
@@ -76,19 +117,19 @@ def interpret(value):
 
 
 def build_message():
-    value, change, pct, url = fetch_vkospi()
+    value, change, pct, src = fetch_vkospi()
     try:
         note = interpret(float(value))
     except ValueError:
         note = ""
     parts = ["📊 *코스피 변동성지수 (VKOSPI)*", "", f"현재: *{value}*"]
-    if change is not None or pct is not None:
+    if change or pct:
         chg = " ".join(x for x in [change, f"({pct})" if pct else None] if x)
         parts.append(f"전일대비: {chg}")
     if note:
         parts.append(f"상태: {note}")
     parts.append("")
-    parts.append(f"[Investing.com에서 보기]({url})")
+    parts.append(f"_출처: {src}_")
     return "\n".join(parts)
 
 
@@ -110,8 +151,7 @@ def send_telegram(text):
     )
     with urllib.request.urlopen(req, timeout=25) as resp:
         body = resp.read().decode("utf-8", errors="replace")
-    result = json.loads(body)
-    if not result.get("ok"):
+    if not json.loads(body).get("ok"):
         raise RuntimeError(f"telegram send failed: {body}")
 
 
@@ -119,10 +159,10 @@ def main():
     try:
         msg = build_message()
     except Exception as e:
-        msg = f"⚠️ VKOSPI 조회에 실패했어요: {e}"
+        msg = f"⚠️ VKOSPI 조회 실패: {e}"
         print(msg, file=sys.stderr)
     send_telegram(msg)
-    print("sent:\n" + msg)
+    print("--- sent ---\n" + msg)
 
 
 if __name__ == "__main__":
