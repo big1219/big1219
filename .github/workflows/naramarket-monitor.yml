@@ -35,10 +35,6 @@ jobs:
           G2B_SERVICE_KEY: ${{ secrets.G2B_SERVICE_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          G2B_API_BASE: ${{ vars.G2B_API_BASE }}
-          G2B_OPERATIONS: ${{ vars.G2B_OPERATIONS }}
-          SEARCH_KEYWORDS: ${{ vars.SEARCH_KEYWORDS }}
-          LOOKBACK_HOURS: ${{ vars.LOOKBACK_HOURS }}
         run: python -m nara_monitor.main
 
       - name: 상태 파일 커밋(변경 시)
