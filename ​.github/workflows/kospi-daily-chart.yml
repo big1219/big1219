@@ -1,0 +1,44 @@
+name: 코스피 10일 이평선 일일 차트
+
+on:
+  schedule:
+    # 07:10 UTC = 한국시간 16:10 (장 마감 15:30 이후). 평일(월~금)만 실행.
+    - cron: "10 7 * * 1-5"
+  workflow_dispatch: {}  # 수동 실행 버튼
+
+# 동시에 두 번 돌지 않도록.
+concurrency:
+  group: kospi-daily-chart
+  cancel-in-progress: false
+
+jobs:
+  send-chart:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 파이썬 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 한글 폰트 설치
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-nanum
+          # matplotlib 폰트 캐시 갱신
+          rm -rf ~/.cache/matplotlib
+
+      - name: 의존성 설치
+        run: pip install matplotlib pandas finance-datareader
+
+      - name: 코스피 차트 생성 + 텔레그램 전송
+        env:
+          # 코스피 전용 방으로 보내려면 KOSPI_CHAT_ID 를 등록한다.
+          # (없으면 나라장터 봇과 같은 TELEGRAM_CHAT_ID 로 폴백)
+          KOSPI_CHAT_ID: ${{ secrets.KOSPI_CHAT_ID }}
+          KOSPI_BOT_TOKEN: ${{ secrets.KOSPI_BOT_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python kospi_chart.py --period 6mo --ma 10 --out kospi_ma10.png --send
