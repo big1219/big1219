@@ -1,0 +1,19 @@
+{
+  "brand": "Truck Care",
+  "title": "Truck Care 엔진오일 리그",
+  "unit": "L",
+  "season": null,
+  "tiers": [
+    { "name": "브론즈", "liters": 300, "reward": "주유상품권 3만원" },
+    { "name": "실버", "liters": 600, "reward": "주유상품권 10만원" },
+    { "name": "골드", "liters": 1000, "reward": "지점 회식비 30만원 지원" }
+  ],
+  "branches": [
+    "성수점",
+    "부천점",
+    "안산점",
+    "평택점",
+    "천안점",
+    "김해점"
+  ]
+}

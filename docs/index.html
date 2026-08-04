@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="refresh" content="300">
+<title>Truck Care 엔진오일 리그 — 2026년 8월</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface: #fcfcfb;
+    --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --baseline: #c3c2b7;
+    --series: #2a78d6; --good: #0ca30c; --good-text: #006300;
+    --ring: rgba(11,11,11,0.10);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #1a1a19;
+      --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --baseline: #383835;
+      --series: #3987e5; --good: #0ca30c; --good-text: #0ca30c;
+      --ring: rgba(255,255,255,0.10);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19;
+    --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --baseline: #383835;
+    --series: #3987e5; --good: #0ca30c; --good-text: #0ca30c;
+    --ring: rgba(255,255,255,0.10);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--page); color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 24px 16px 48px; }
+  header h1 { font-size: 22px; margin: 0; }
+  header .sub { color: var(--ink-2); font-size: 14px; margin-top: 4px; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 20px 0; }
+  .kpi { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 12px 14px; }
+  .kpi .label { font-size: 12px; color: var(--ink-2); }
+  .kpi .value { font-size: 26px; font-weight: 700; margin-top: 2px; }
+  .kpi .value small { font-size: 14px; font-weight: 500; color: var(--ink-2); }
+  section.board { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 18px 16px 8px; }
+  section.board h2, section.tiers h2 { font-size: 15px; margin: 0 0 12px; }
+  .axis { position: relative; height: 26px; margin-left: var(--indent); margin-right: var(--rpad); }
+  .tier-mark { position: absolute; top: 0; bottom: -9999px; border-left: 1px dashed var(--grid); pointer-events: none; }
+  .tier-mark span { position: absolute; top: 0; left: 4px; font-size: 11px; color: var(--muted); white-space: nowrap; }
+  .axis, .rows { --indent: 224px; --rpad: 76px; }
+  .rows { position: relative; overflow: hidden; }
+  .row { display: grid; grid-template-columns: 34px 172px 1fr; gap: 8px; align-items: center; padding: 9px 0; border-top: 1px solid var(--grid); }
+  .row:first-child { border-top: none; }
+  .rank { font-size: 16px; text-align: center; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .who { min-width: 0; }
+  .who .name { font-weight: 600; font-size: 14px; }
+  .badge { display: inline-block; margin-left: 6px; font-size: 11px; color: var(--good-text); border: 1px solid var(--good); border-radius: 999px; padding: 0 7px; white-space: nowrap; }
+  .track { position: relative; height: 20px; border-left: 2px solid var(--baseline); padding-right: var(--rpad); }
+  .bar { height: 14px; margin-top: 3px; background: var(--series); border-radius: 0 4px 4px 0; min-width: 2px; }
+  .val { position: absolute; right: 0; top: 0; font-size: 13px; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .next { grid-column: 3; font-size: 12px; color: var(--ink-2); margin-top: -4px; }
+  section.tiers { margin-top: 20px; }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; overflow: hidden; font-size: 13px; }
+  th, td { text-align: left; padding: 9px 12px; border-top: 1px solid var(--grid); }
+  thead th { border-top: none; color: var(--ink-2); font-weight: 600; font-size: 12px; }
+  footer { color: var(--muted); font-size: 12px; margin-top: 20px; }
+  #tip { position: fixed; display: none; background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; padding: 8px 10px; font-size: 12px; box-shadow: 0 4px 14px rgba(0,0,0,.15); pointer-events: none; z-index: 9; max-width: 240px; }
+  #tip b { display: block; font-size: 13px; }
+  @media (max-width: 560px) {
+    .row { grid-template-columns: 26px 1fr; }
+    .track { grid-column: 1 / -1; margin-left: 34px; }
+    .next { grid-column: 1 / -1; margin-left: 34px; }
+    .axis, .rows { --indent: 36px; }
+    .axis { height: 8px; }
+    .tier-mark span { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🛢️ Truck Care 엔진오일 리그</h1>
+    <div class="sub">2026년 8월 시즌 · 지점별 엔진오일 소모량 리더보드 · 2026-08-04 11:44 기준 (5분마다 자동 새로고침)</div>
+  </header>
+
+  <div class="kpis">
+    <div class="kpi"><div class="label">이번 달 전체 소모량</div><div class="value">966<small> L</small></div></div>
+    <div class="kpi"><div class="label">현재 1위</div><div class="value">성수점</div></div>
+    <div class="kpi"><div class="label">기록 지점</div><div class="value">6<small> / 6</small></div></div>
+    <div class="kpi"><div class="label">티어 달성 지점</div><div class="value">1<small> 곳</small></div></div>
+  </div>
+
+  <section class="board">
+    <h2>지점 순위</h2>
+    <div class="rows">
+      <div class="axis"><div class="tier-mark" style="left:28.30%"><span>브론즈 300L</span></div><div class="tier-mark" style="left:56.60%"><span>실버 600L</span></div><div class="tier-mark" style="left:94.34%"><span>골드 1,000L</span></div></div>
+      <div class="row" data-branch="성수점" data-total="310L"
+     data-tiers="브론즈" data-next="실버까지 290L">
+  <div class="rank">🥇</div>
+  <div class="who"><span class="name">성수점</span><span class="badge">✓ 브론즈</span></div>
+  <div class="track">
+    <div class="bar" style="width:29.25%"></div>
+    <span class="val">310L</span>
+  </div>
+  <div class="next">실버까지 290L</div>
+</div><div class="row" data-branch="안산점" data-total="197L"
+     data-tiers="없음" data-next="브론즈까지 103L">
+  <div class="rank">🥈</div>
+  <div class="who"><span class="name">안산점</span></div>
+  <div class="track">
+    <div class="bar" style="width:18.58%"></div>
+    <span class="val">197L</span>
+  </div>
+  <div class="next">브론즈까지 103L</div>
+</div><div class="row" data-branch="부천점" data-total="162L"
+     data-tiers="없음" data-next="브론즈까지 138L">
+  <div class="rank">🥉</div>
+  <div class="who"><span class="name">부천점</span></div>
+  <div class="track">
+    <div class="bar" style="width:15.28%"></div>
+    <span class="val">162L</span>
+  </div>
+  <div class="next">브론즈까지 138L</div>
+</div><div class="row" data-branch="천안점" data-total="146L"
+     data-tiers="없음" data-next="브론즈까지 154L">
+  <div class="rank">4</div>
+  <div class="who"><span class="name">천안점</span></div>
+  <div class="track">
+    <div class="bar" style="width:13.77%"></div>
+    <span class="val">146L</span>
+  </div>
+  <div class="next">브론즈까지 154L</div>
+</div><div class="row" data-branch="평택점" data-total="113L"
+     data-tiers="없음" data-next="브론즈까지 187L">
+  <div class="rank">5</div>
+  <div class="who"><span class="name">평택점</span></div>
+  <div class="track">
+    <div class="bar" style="width:10.66%"></div>
+    <span class="val">113L</span>
+  </div>
+  <div class="next">브론즈까지 187L</div>
+</div><div class="row" data-branch="김해점" data-total="38L"
+     data-tiers="없음" data-next="브론즈까지 262L">
+  <div class="rank">6</div>
+  <div class="who"><span class="name">김해점</span></div>
+  <div class="track">
+    <div class="bar" style="width:3.58%"></div>
+    <span class="val">38L</span>
+  </div>
+  <div class="next">브론즈까지 262L</div>
+</div>
+    </div>
+  </section>
+
+  <section class="tiers">
+    <h2>🎁 리워드 티어 안내</h2>
+    <table>
+      <thead><tr><th>티어</th><th>기준(시즌 누적)</th><th>보상</th><th>달성 지점</th></tr></thead>
+      <tbody><tr><td>브론즈</td><td>300L 이상</td><td>주유상품권 3만원</td><td>성수점</td></tr><tr><td>실버</td><td>600L 이상</td><td>주유상품권 10만원</td><td>-</td></tr><tr><td>골드</td><td>1,000L 이상</td><td>지점 회식비 30만원 지원</td><td>-</td></tr></tbody>
+    </table>
+  </section>
+
+  <footer>기록이 등록되면 자동으로 갱신됩니다 · 시즌은 매월 1일 초기화 · Truck Care</footer>
+</div>
+
+<div id="tip"></div>
+<script>
+  const tip = document.getElementById("tip");
+  document.querySelectorAll(".row").forEach(row => {
+    row.addEventListener("pointermove", ev => {
+      tip.innerHTML = "<b>" + row.dataset.branch + "</b>"
+        + "누적 " + row.dataset.total
+        + "<br>달성 티어: " + row.dataset.tiers
+        + "<br>다음 목표: " + row.dataset.next;
+      tip.style.display = "block";
+      const x = Math.min(ev.clientX + 12, window.innerWidth - tip.offsetWidth - 8);
+      tip.style.left = x + "px";
+      tip.style.top = (ev.clientY + 14) + "px";
+    });
+    row.addEventListener("pointerleave", () => tip.style.display = "none");
+  });
+</script>
+</body>
+</html>
