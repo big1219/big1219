@@ -1,50 +1,52 @@
-name: 나라장터 엔진오일 입찰 모니터링
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""원격 seen.json 과 이번 실행 결과를 '합집합'으로 병합해 저장한다.
 
-on:
-  schedule:
-    # 매시 05분, 35분(UTC). 한국시간 기준 30분 간격으로 실행된다.
-    - cron: "5,35 * * * *"
-  workflow_dispatch: {}  # 수동 실행 버튼
+push 경합(remote가 앞서 있어 reject)이 나서 재시도할 때, 원격 기록과 로컬 기록
+어느 쪽도 잃지 않도록 두 seen 목록을 union 한다. 저장 형식은 nara_monitor/state.py
+와 동일하게 맞춘다({updated_at, count, seen}).
 
-# state/seen.json 을 커밋해 중복 알림을 막으므로 쓰기 권한이 필요하다.
-permissions:
-  contents: write
+usage: python scripts/merge_seen.py <remote_seen_path> <local_seen_path> <out_path>
+  - remote_seen_path: 최신 원격 main 의 state/seen.json (기준선)
+  - local_seen_path : 이번 실행이 만든 seen.json 사본
+  - out_path        : 병합 결과를 쓸 경로(보통 remote_seen_path 와 동일)
+"""
+from __future__ import annotations
 
-# 동시에 두 번 돌지 않도록(상태 파일 충돌 방지).
-concurrency:
-  group: naramarket-monitor
-  cancel-in-progress: false
+import json
+import sys
+from datetime import datetime, timezone
 
-jobs:
-  monitor:
-    runs-on: ubuntu-latest
-    steps:
-      - name: 체크아웃
-        uses: actions/checkout@v4
 
-      - name: 파이썬 설정
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+def load_keys(path: str) -> list[str]:
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError, OSError):
+        return []
+    if isinstance(data, dict):
+        return list(data.get("seen", []))
+    if isinstance(data, list):
+        return list(data)
+    return []
 
-      - name: 의존성 설치
-        run: pip install -r requirements.txt
 
-      - name: 모니터링 실행
-        env:
-          G2B_SERVICE_KEY: ${{ secrets.G2B_SERVICE_KEY }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python -m nara_monitor.main
+def main() -> int:
+    if len(sys.argv) != 4:
+        print("usage: merge_seen.py <remote> <local> <out>", file=sys.stderr)
+        return 2
+    remote_path, local_path, out_path = sys.argv[1], sys.argv[2], sys.argv[3]
+    merged = sorted(set(load_keys(remote_path)) | set(load_keys(local_path)))
+    payload = {
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "count": len(merged),
+        "seen": merged,
+    }
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False, indent=2)
+    print(f"merged seen keys: {len(merged)}")
+    return 0
 
-      - name: 상태 파일 커밋(변경 시)
-        run: |
-          if [[ -n "$(git status --porcelain state/seen.json)" ]]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add state/seen.json
-            git commit -m "chore: 알림 발송 공고 기록 업데이트 [skip ci]"
-            git push
-          else
-            echo "상태 변경 없음 — 커밋 생략"
-          fi
+
+if __name__ == "__main__":
+    raise SystemExit(main())
