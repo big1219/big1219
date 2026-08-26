@@ -48,6 +48,9 @@ DEFAULT_OPERATIONS = ["getBidPblancListInfoThng"]
 # 발급 화면의 "엔드포인트"가 다르면 G2B_API_BASE 로 덮어쓴다.
 DEFAULT_API_BASE = "https://apis.data.go.kr/1230000/ad/BidPublicInfoService"
 
+# 한전(KEPCO) 전자입찰 계약정보 API (전력데이터개방포털 가이드 기준).
+DEFAULT_KEPCO_API_URL = "https://bigdata.kepco.co.kr/openapi/v1/electContract.do"
+
 
 def _split(value: str) -> list[str]:
     return [item.strip() for item in value.split(",") if item.strip()]
@@ -65,6 +68,9 @@ class Config:
     num_of_rows: int = 500
     max_pages: int = 40
     state_file: str = "state/seen.json"
+    # 한전(KEPCO). 키가 비어 있으면 한전 조회는 건너뛴다(선택 기능).
+    kepco_api_key: str = ""
+    kepco_api_url: str = DEFAULT_KEPCO_API_URL
     request_timeout: int = 30
     # True 면 새 공고를 텔레그램으로 보내지 않고 콘솔에만 출력(테스트용).
     dry_run: bool = False
@@ -97,6 +103,8 @@ class Config:
             num_of_rows=int(os.environ.get("G2B_NUM_OF_ROWS", "500")),
             max_pages=int(os.environ.get("G2B_MAX_PAGES", "40")),
             state_file=os.environ.get("STATE_FILE", "state/seen.json"),
+            kepco_api_key=os.environ.get("KEPCO_SERVICE_KEY", ""),
+            kepco_api_url=os.environ.get("KEPCO_API_URL", DEFAULT_KEPCO_API_URL).rstrip("/"),
             request_timeout=int(os.environ.get("REQUEST_TIMEOUT", "30")),
             dry_run=os.environ.get("DRY_RUN", "").lower() in ("1", "true", "yes"),
         )
