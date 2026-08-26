@@ -35,6 +35,7 @@ jobs:
           G2B_SERVICE_KEY: ${{ secrets.G2B_SERVICE_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          KEPCO_SERVICE_KEY: ${{ secrets.KEPCO_SERVICE_KEY }}
         run: python -m nara_monitor.main
 
       # 상태 파일을 커밋/푸시한다.
