@@ -110,3 +110,22 @@ tests/                                     단위 테스트
 - **알림이 안 와요**: Actions 탭의 실행 로그 확인. `resultCode=30`(SERVICE KEY ERROR) 이면 키 미승인/오타, `JSON 파싱 실패`면 엔드포인트(`G2B_API_BASE`) 확인.
 - **너무 많이/적게 와요**: `SEARCH_KEYWORDS` 와 `LOOKBACK_HOURS` 조정.
 - **API 트래픽 제한**: 공공데이터포털 개발계정은 일일 호출 한도가 있습니다. 호출이 많으면 `G2B_NUM_OF_ROWS` 를 키우고 주기를 늘리세요.
+
+---
+
+## Claude Code 서브에이전트 (AI 직원)
+
+`.claude/agents/` 에 업무별 AI 직원이 정의되어 있습니다. Claude Code에서 이 저장소를 열면 요청 내용에 맞는 직원에게 자동으로 일이 넘어가고, 이름을 직접 불러도 됩니다. (예: "ppt-maker 에이전트로 관공서 제안 PPT 10장 만들어줘")
+
+| 이름 | 역할 | 쓸 수 있는 도구 |
+|---|---|---|
+| `marketing` | 광고 문구, SNS, 숏츠·릴스 대본, 홍보자료 | WebSearch, WebFetch, Read, Write, Glob |
+| `ppt-maker` | 제품 소개서·제안·교육용 .pptx 제작 | Read, Write, Edit, Bash, Glob, Grep, Skill |
+| `bid-analyst` | 나라장터·한전 입찰공고 요약·참여 검토 | Read, Grep, Glob, Bash, WebSearch, WebFetch |
+| `ad-compliance` | 배포 전 표시광고법 검수 (읽기 전용) | Read, Grep, Glob, WebSearch, WebFetch |
+| `tech-advisor` | 오일 규격·점도·차량별 추천 기술 상담 | WebSearch, WebFetch, Read, Grep, Glob |
+| `proposal-writer` | B2B 제안서·영업 메일 초안 | Read, Write, Edit, Glob, Grep, WebSearch |
+
+- 새 직원 추가: `.claude/agents/<이름>.md` 파일을 만들고 맨 위 `---` 사이에 `name`, `description`(언제 쓰는지), `tools`, `model` 을 적은 뒤, 아래 본문에 지시사항(시스템 프롬프트)을 씁니다.
+- `.claude/agents/` 폴더를 세션 시작 후 처음 만든 경우에는 Claude Code를 한 번 재시작해야 인식됩니다. 이후 파일 추가·수정은 자동 반영됩니다.
+- `/agents` 명령으로 목록 확인·편집이 가능합니다.
