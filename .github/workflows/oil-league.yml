@@ -1,0 +1,53 @@
+name: Truck Care 엔진오일 리그
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "data/**"
+      - "oil_league/**"
+  schedule:
+    # 매일 KST 06:00 (월이 바뀌면 시즌 자동 초기화 반영)
+    - cron: "0 21 * * *"
+  workflow_dispatch: {}
+
+# docs/index.html 과 state/oil_awards.json 을 커밋하므로 쓰기 권한이 필요하다.
+permissions:
+  contents: write
+
+concurrency:
+  group: oil-league
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 파이썬 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 의존성 설치
+        run: pip install -r requirements.txt
+
+      - name: 대시보드 생성 + 달성 알림
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python -m oil_league.main
+
+      - name: 대시보드/어워드 기록 커밋(변경 시)
+        run: |
+          if [[ -n "$(git status --porcelain docs state/oil_awards.json)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add docs state/oil_awards.json
+            git commit -m "chore: 엔진오일 리그 대시보드 업데이트 [skip ci]"
+            git push
+          else
+            echo "변경 없음 — 커밋 생략"
+          fi
