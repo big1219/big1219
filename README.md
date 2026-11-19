@@ -125,6 +125,11 @@ tests/                                     단위 테스트
 | `ad-compliance` | 배포 전 표시광고법 검수 (읽기 전용) | Read, Grep, Glob, WebSearch, WebFetch |
 | `tech-advisor` | 오일 규격·점도·차량별 추천 기술 상담 | WebSearch, WebFetch, Read, Grep, Glob |
 | `proposal-writer` | B2B 제안서·영업 메일 초안 | Read, Write, Edit, Glob, Grep, WebSearch |
+| `fact-checker` | 수치·규격·법령·출처를 원문으로 대조 검증 (읽기 전용) | Read, Grep, Glob, WebSearch, WebFetch |
+| `video-director` | 숏츠·릴스 대본을 촬영 콘티·컷 리스트·편집 지시서로 구체화 | Read, Write, Edit, Glob, WebSearch |
+| `cs-support` | 고객 문의·불만·리뷰 답변 초안, FAQ | Read, Write, Glob, Grep, WebSearch, WebFetch |
+| `market-researcher` | 시장 동향·경쟁사 제품·가격·프로모션 조사 | WebSearch, WebFetch, Read, Write, Glob, Grep |
+| `translator` | 영문 메일 작성, 제품 자료 영한·한영 번역 | Read, Write, Edit, Glob, Grep, WebSearch |
 
 - 새 직원 추가: `.claude/agents/<이름>.md` 파일을 만들고 맨 위 `---` 사이에 `name`, `description`(언제 쓰는지), `tools`, `model` 을 적은 뒤, 아래 본문에 지시사항(시스템 프롬프트)을 씁니다.
 - `.claude/agents/` 폴더를 세션 시작 후 처음 만든 경우에는 Claude Code를 한 번 재시작해야 인식됩니다. 이후 파일 추가·수정은 자동 반영됩니다.
