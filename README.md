@@ -91,9 +91,54 @@ pytest -q
   - 물품 `getBidPblancListInfoThng`, 용역 `getBidPblancListInfoServc`, 공사 `getBidPblancListInfoCnstwk`
 - **알림 주기**: `.github/workflows/naramarket-monitor.yml` 의 `cron` 수정
 
+## 🏆 Truck Care 엔진오일 리그 (지점 경쟁 리더보드)
+
+각 지점의 엔진오일 소모량을 **월(시즌) 단위로 집계**해서, 전 지점이 같은 링크로 보는
+**실시간 리더보드**를 만들고, **티어(목표 소모량) 달성 시 텔레그램으로 축하 알림 + 보상 안내**를 보냅니다.
+
+```
+data/oil_usage.csv 에 기록 추가 ──(push)──> GitHub Actions ──> docs/index.html 재생성(리더보드)
+                                                └ 신규 티어 달성 지점 → 텔레그램 축하 알림
+```
+
+### 사용 방법
+
+1. **리더보드 공개(최초 1회)**: 저장소 → Settings → Pages → Branch `main`, 폴더 `/docs` 선택.
+   생성된 `https://<계정>.github.io/<저장소>/` 링크를 전 지점 단톡방에 공유하면 끝.
+   페이지는 5분마다 자동 새로고침되고, 기록이 커밋되면 1~2분 안에 반영됩니다.
+2. **소모량 기록**: `data/oil_usage.csv` 에 한 줄씩 추가(GitHub 모바일 앱/웹에서 바로 편집 가능).
+   ```csv
+   date,branch,liters,memo
+   2026-08-05,성수점,45,카고 2대
+   ```
+3. **지점/티어/보상 설정**: `data/league_config.json` 에서 지점 명단(`branches`),
+   티어 기준·보상(`tiers`)을 수정. 시즌은 매월 1일 자동 초기화(KST)됩니다.
+4. **달성 알림**: 나라장터 봇과 같은 `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` 시크릿을 사용합니다.
+   이미 알린 달성 건은 `state/oil_awards.json` 에 기록되어 중복 알림이 없습니다.
+
+### 로컬 테스트
+
+```bash
+DRY_RUN=1 python -m oil_league.main   # 전송 없이 docs/index.html 생성 + 알림 내용 콘솔 출력
+pytest -q                              # 집계/랭킹/티어 판정 테스트
+```
+
+---
+
 ## 구성
 
 ```
+oil_league/
+  league.py      소모량 집계·랭킹·티어 판정
+  dashboard.py   리더보드 HTML 렌더링
+  main.py        엔트리포인트(대시보드 생성 + 달성 알림)
+data/
+  oil_usage.csv        지점별 소모량 기록(여기에 한 줄씩 추가)
+  league_config.json   지점 명단 · 티어 · 보상 설정
+docs/index.html        생성된 리더보드(GitHub Pages 로 서빙)
+state/oil_awards.json  티어 달성 알림 기록(중복 방지, 자동 커밋)
+.github/workflows/oil-league.yml       기록 push 시 재생성 + 알림
+
 nara_monitor/
   config.py    환경변수 설정
   api.py       나라장터 OpenAPI 호출 + 키워드 필터
