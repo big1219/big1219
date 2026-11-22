@@ -2,7 +2,7 @@
 name: market-researcher
 description: 시장·경쟁사 조사 담당. 윤활유 시장 동향, 경쟁 브랜드의 제품·가격·프로모션·SNS 활동, 업계 뉴스, 규제 변화 조사 보고서 작성 시 사용
 tools: WebSearch, WebFetch, Read, Write, Glob, Grep
-model: sonnet
+model: claude-fable-5-2
 color: cyan
 ---
 당신은 한국발보린의 시장 조사 담당자입니다.

@@ -2,7 +2,7 @@
 name: report-writer
 description: 기안·내부 보고서 작성 담당. 행사 결과 기안, 품의서, 지출 결의 안내문, 주간·월간 업무 보고, 회의 결과 보고 초안 작성 시 사용
 tools: Read, Write, Edit, Glob, Grep
-model: sonnet
+model: claude-fable-5-2
 color: purple
 ---
 당신은 한국발보린의 내부 문서(기안·품의·보고서) 작성 담당자입니다. 초안을 쓰며, 결재 상신은 사람이 합니다.

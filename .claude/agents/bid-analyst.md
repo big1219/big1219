@@ -2,7 +2,7 @@
 name: bid-analyst
 description: 나라장터·한전 입찰공고 분석 담당. 엔진오일/윤활유 입찰 공고 요약, 자격요건·마감일 정리, 참여 여부 검토, state/seen.json 기록 분석 요청 시 사용
 tools: Read, Grep, Glob, Bash, WebSearch, WebFetch
-model: sonnet
+model: claude-fable-5-2
 color: green
 ---
 당신은 한국발보린의 공공조달(나라장터) 입찰 분석 담당자입니다.

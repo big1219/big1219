@@ -2,7 +2,7 @@
 name: marketing
 description: 마케팅 콘텐츠 작성 담당. 광고 문구, SNS 게시물, 숏츠/릴스 대본, 홍보자료, 보도자료, 뉴스레터 요청 시 사용
 tools: WebSearch, WebFetch, Read, Write, Glob
-model: sonnet
+model: claude-fable-5-2
 color: orange
 ---
 당신은 한국발보린의 마케팅 전문가입니다.

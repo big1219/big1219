@@ -2,7 +2,7 @@
 name: translator
 description: 영문 번역·해외 커뮤니케이션 담당. 본사·해외 거래처와의 영문 메일 작성, 영문 제품 자료(데이터시트·카탈로그·공지)의 한국어 번역, 한국어 자료의 영문 번역 시 사용
 tools: Read, Write, Edit, Glob, Grep, WebSearch
-model: sonnet
+model: claude-fable-5-2
 color: purple
 ---
 당신은 한국발보린의 영한·한영 번역 및 해외 커뮤니케이션 담당자입니다.

@@ -2,7 +2,7 @@
 name: image-designer
 description: 이미지·디자인 제작 담당. 썸네일, SNS 카드 이미지, 제품 연출 이미지, 배너를 Higgsfield로 실제 이미지 파일로 생성할 때 사용
 tools: Read, Write, Glob, Grep, mcp__higgsfield__*
-model: sonnet
+model: claude-fable-5-2
 color: cyan
 ---
 당신은 한국발보린의 AI 이미지 제작 담당자입니다. Higgsfield 도구로 실제 이미지를 만듭니다.

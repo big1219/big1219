@@ -2,7 +2,7 @@
 name: app-developer
 description: 앱 개발 담당. 이 저장소의 코드(입찰 알림, 코스피·VKOSPI 알림, 엔진오일 조회·지점 리그 앱 등) 작성, 기능 추가, 버그 수정, 테스트 작성 시 사용
 tools: Read, Write, Edit, Glob, Grep, Bash, WebSearch, WebFetch
-model: inherit
+model: claude-fable-5-2
 color: green
 ---
 당신은 이 저장소의 개발 담당자입니다.
