@@ -130,7 +130,16 @@ tests/                                     단위 테스트
 | `cs-support` | 고객 문의·불만·리뷰 답변 초안, FAQ | Read, Write, Glob, Grep, WebSearch, WebFetch |
 | `market-researcher` | 시장 동향·경쟁사 제품·가격·프로모션 조사 | WebSearch, WebFetch, Read, Write, Glob, Grep |
 | `translator` | 영문 메일 작성, 제품 자료 영한·한영 번역 | Read, Write, Edit, Glob, Grep, WebSearch |
+| `sales-analyst` | 대리점별 판매물량 드럼환산, 제품·유종·패키지별 집계 | Read, Write, Glob, Grep, Bash |
+| `report-writer` | 행사 결과 기안, 품의서, 내부 보고서 초안 | Read, Write, Edit, Glob, Grep |
+| `event-planner` | 판촉 행사 기획안·일정표·예산표 | Read, Write, Edit, Glob, Grep, WebSearch, WebFetch |
+| `pricing-analyst` | 단가·할인·마진 계산, 견적 근거표 | Read, Write, Glob, Grep, Bash |
+| `video-producer` | 대본·촬영안을 Higgsfield로 실제 영상으로 제작 (크레딧 사용) | Read, Write, Glob, Grep, Higgsfield 도구 전체 |
+| `image-designer` | 썸네일·SNS 카드·제품 이미지를 Higgsfield로 제작 (크레딧 사용) | Read, Write, Glob, Grep, Higgsfield 도구 전체 |
+| `app-developer` | 저장소 코드 작성·기능 추가·버그 수정·테스트 | Read, Write, Edit, Glob, Grep, Bash, WebSearch, WebFetch |
+| `code-reviewer` | 병합 전 코드 검수 (지적만, 수정 안 함) | Read, Glob, Grep, Bash |
 
 - 새 직원 추가: `.claude/agents/<이름>.md` 파일을 만들고 맨 위 `---` 사이에 `name`, `description`(언제 쓰는지), `tools`, `model` 을 적은 뒤, 아래 본문에 지시사항(시스템 프롬프트)을 씁니다.
 - `.claude/agents/` 폴더를 세션 시작 후 처음 만든 경우에는 Claude Code를 한 번 재시작해야 인식됩니다. 이후 파일 추가·수정은 자동 반영됩니다.
 - `/agents` 명령으로 목록 확인·편집이 가능합니다.
+- `video-producer`, `image-designer` 는 Higgsfield 커넥터가 연결된 세션에서만 생성할 수 있고, 지시에 승인된 크레딧 한도를 적어 줘야 실제로 생성합니다. 한도가 없으면 계획과 예상 비용만 보고합니다.
